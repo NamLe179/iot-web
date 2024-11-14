@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './Dashboard.css';
 
-const Dashboard = () => {
+const Dashboard = ({ onLogout }) => {
     const [controlMode, setControlMode] = useState(null);
     const [isPumpOn, setIsPumpOn] = useState(false);
     const [showAutoPopup, setShowAutoPopup] = useState(false);
@@ -28,6 +28,7 @@ const Dashboard = () => {
     return (
         <div className="dashboard">
             <h2>Dashboard</h2>
+            {/* <button onClick={onLogout} className="logout-button">Logout</button> */}
             <div className="metrics">
                 <div className="metric">Lượng nước: 71.0%</div>
                 <div className="metric">Nhiệt độ: 34.0°C</div>
