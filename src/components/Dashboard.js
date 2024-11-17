@@ -10,17 +10,43 @@ const Dashboard = ({ onLogout }) => {
     const [maxWaterLevel, setMaxWaterLevel] = useState('');
     const [distanceToSensor, setDistanceToSensor] = useState('');
     const [distanceToFull, setDistanceToFull] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
 
     const togglePump = (status) => {
         setIsPumpOn(status);
     };
 
     const handleConfirmAuto = () => {
+        if (!minWaterLevel || !maxWaterLevel) {
+            setErrorMessage('Vui lòng điền đủ thông tin.');
+            return;
+        }
+        const minLevel = parseFloat(minWaterLevel);
+        const maxLevel = parseFloat(maxWaterLevel);
+
+        if (minLevel < 15 || maxLevel > 75 || minLevel >= maxLevel) {
+            setErrorMessage('Lượng nước không hợp lệ (tối thiểu > 15% và tối đa < 75%).');
+            return;
+        }
+
+        setErrorMessage('');
         setShowAutoPopup(false);
         console.log("Auto Mode - Min Water Level:", minWaterLevel, "Max Water Level:", maxWaterLevel);
     };
 
     const handleConfirmAdjust = () => {
+        if (!distanceToSensor || !distanceToFull) {
+            setErrorMessage('Vui lòng điền đủ thông tin.');
+            return;
+        }
+        const distanceFull = parseFloat(distanceToFull);
+
+        if (distanceFull < 25) {
+            setErrorMessage('Khoảng cách từ sensor đến mực nước khi bể đầy phải ít nhất là 25cm.');
+            return;
+        }
+
+        setErrorMessage('');
         setShowAdjustPopup(false);
         console.log("Distance to Sensor:", distanceToSensor, "Distance to Full:", distanceToFull);
     };
@@ -62,6 +88,7 @@ const Dashboard = ({ onLogout }) => {
             {showAutoPopup && (
                 <div className="popup">
                     <h3>Điều chỉnh lượng nước chế độ tự động</h3>
+                    <p>Lưu ý: Lượng nước tối thiểu ít nhất là 15% và tối đa là 75%.</p>
                     <input
                         type="number"
                         placeholder="Lượng nước tối thiểu"
@@ -74,8 +101,9 @@ const Dashboard = ({ onLogout }) => {
                         value={maxWaterLevel}
                         onChange={(e) => setMaxWaterLevel(e.target.value)}
                     />
+                    {errorMessage && <p className="error">{errorMessage}</p>}
                     <button onClick={handleConfirmAuto}>Xác nhận</button>
-                    <button onClick={() => setShowAutoPopup(false)}>Đóng</button>
+                    <button onClick={() => {setShowAutoPopup(false); setErrorMessage(''); }}>Đóng</button>
                 </div>
             )}
 
@@ -83,6 +111,7 @@ const Dashboard = ({ onLogout }) => {
             {showAdjustPopup && (
                 <div className="popup">
                     <h3>Điều chỉnh thông số</h3>
+                    <p>Lưu ý: Khoảng cách từ sensor đến mực nước khi bể đầy ít nhất là 25cm.</p>
                     <input
                         type="number"
                         placeholder="Khoảng cách từ đáy bể đến sensor"
@@ -95,8 +124,9 @@ const Dashboard = ({ onLogout }) => {
                         value={distanceToFull}
                         onChange={(e) => setDistanceToFull(e.target.value)}
                     />
+                    {errorMessage && <p className="error">{errorMessage}</p>}
                     <button onClick={handleConfirmAdjust}>Xác nhận</button>
-                    <button onClick={() => setShowAdjustPopup(false)}>Đóng</button>
+                    <button onClick={() => { setShowAdjustPopup(false); setErrorMessage(''); }}>Đóng</button>
                 </div>
             )}
         </div>
