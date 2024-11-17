@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 import Dashboard from './components/Dashboard';
 import SensorLog from './components/SensorLog';
@@ -7,17 +7,25 @@ import './App.css';
 
 function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [token, setToken] = useState(null);
 
-    const handleLogin = (username, password) => {
-        // Giả lập tài khoản và mật khẩu cố định
-        if (username === 'admin' && password === 'password') {
+    useEffect(() => {
+        const savedToken = localStorage.getItem('token');
+        if (savedToken) {
             setIsLoggedIn(true);
-        } else {
-            alert('Sai tên tài khoản hoặc mật khẩu!');
+            setToken(savedToken);
         }
+    }, []);
+
+    const handleLogin = (token) => {
+        localStorage.setItem('token', token);
+        setToken(token);
+        setIsLoggedIn(true);
     };
 
     const handleLogout = () => {
+        localStorage.removeItem('token');
+        setToken(null);
         setIsLoggedIn(false);
     };
     
@@ -41,11 +49,11 @@ function App() {
                         />
                         <Route
                             path="/dashboard"
-                            element={isLoggedIn ? <Dashboard onLogout={handleLogout} /> : <Navigate to="/" />}
+                            element={isLoggedIn ? <Dashboard token={token} onLogout={handleLogout} /> : <Navigate to="/" />}
                         />
                         <Route
                             path="/sensor-log"
-                            element={isLoggedIn ? <SensorLog /> : <Navigate to="/" />}
+                            element={isLoggedIn ? <SensorLog token={token} /> : <Navigate to="/" />}
                         />
                     </Routes>
                 </main>

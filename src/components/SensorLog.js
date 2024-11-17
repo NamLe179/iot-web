@@ -1,11 +1,23 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './SensorLog.css';
 
-const SensorLog = () => {
-    const sensorData = [
-        { waterLevel: 71, temperature: 34.0, pumpStatus: true, timestamp: '2024-10-27T10:00:00Z' },
-        // Thêm dữ liệu vào đây nếu cần
-    ];
+const SensorLog = ({ token }) => {
+    const [logs, setLogs] = useState([]);
+    useEffect(() => {
+        const fetchLogs = async () => {
+            try {
+                const response = await fetch('http://localhost:3000/logs', {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                const data = await response.json();
+                setLogs(data);
+            } catch (err) {
+                console.error('Error fetching logs', err);
+            }
+        };
+
+        fetchLogs();
+    }, [token]);
 
     return (
         <div className="sensor-log">
@@ -20,12 +32,12 @@ const SensorLog = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {sensorData.map((item, index) => (
+                    {logs.map((log, index) => (
                         <tr key={index}>
-                            <td>{item.waterLevel}</td>
-                            <td>{item.temperature}</td>
-                            <td>{item.pumpStatus ? 'ON' : 'OFF'}</td>
-                            <td>{new Date(item.timestamp).toLocaleString()}</td>
+                            <td>{log.waterLevel}</td>
+                            <td>{log.temperature}</td>
+                            <td>{log.pumpState}</td>
+                            <td>{new Date(log.timestamp).toLocaleString()}</td>
                         </tr>
                     ))}
                 </tbody>
