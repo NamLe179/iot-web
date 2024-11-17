@@ -8,8 +8,9 @@ const Dashboard = ({ onLogout }) => {
     const [showAdjustPopup, setShowAdjustPopup] = useState(false);
     const [minWaterLevel, setMinWaterLevel] = useState('');
     const [maxWaterLevel, setMaxWaterLevel] = useState('');
-    const [distanceToSensor, setDistanceToSensor] = useState('');
-    const [distanceToFull, setDistanceToFull] = useState('');
+    // const [distanceToSensor, setDistanceToSensor] = useState('');
+    const [tankHeight, setTankHeight] = useState('');
+    // const [distanceToFull, setDistanceToFull] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
     const togglePump = (status) => {
@@ -34,21 +35,32 @@ const Dashboard = ({ onLogout }) => {
         console.log("Auto Mode - Min Water Level:", minWaterLevel, "Max Water Level:", maxWaterLevel);
     };
 
-    const handleConfirmAdjust = () => {
-        if (!distanceToSensor || !distanceToFull) {
-            setErrorMessage('Vui lòng điền đủ thông tin.');
-            return;
-        }
-        const distanceFull = parseFloat(distanceToFull);
+    // const handleConfirmAdjust = () => {
+    //     if (!distanceToSensor || !distanceToFull) {
+    //         setErrorMessage('Vui lòng điền đủ thông tin.');
+    //         return;
+    //     }
+    //     const distanceFull = parseFloat(distanceToFull);
 
-        if (distanceFull < 25) {
-            setErrorMessage('Khoảng cách từ sensor đến mực nước khi bể đầy phải ít nhất là 25cm.');
+    //     if (distanceFull < 25) {
+    //         setErrorMessage('Khoảng cách từ sensor đến mực nước khi bể đầy phải ít nhất là 25cm.');
+    //         return;
+    //     }
+
+    //     setErrorMessage('');
+    //     setShowAdjustPopup(false);
+    //     console.log("Distance to Sensor:", distanceToSensor, "Distance to Full:", distanceToFull);
+    // };
+
+    const handleConfirmAdjust = () => {
+        if (!tankHeight) {
+            setErrorMessage('Vui lòng điền đủ thông tin.');
             return;
         }
 
         setErrorMessage('');
         setShowAdjustPopup(false);
-        console.log("Distance to Sensor:", distanceToSensor, "Distance to Full:", distanceToFull);
+        console.log("Tank Height: ", tankHeight);
     };
 
     return (
@@ -111,18 +123,12 @@ const Dashboard = ({ onLogout }) => {
             {showAdjustPopup && (
                 <div className="popup">
                     <h3>Điều chỉnh thông số</h3>
-                    <p>Lưu ý: Khoảng cách từ sensor đến mực nước khi bể đầy ít nhất là 25cm.</p>
+                    {/* <p>Lưu ý: Khoảng cách từ sensor đến mực nước khi bể đầy ít nhất là 25cm.</p> */}
                     <input
                         type="number"
-                        placeholder="Khoảng cách từ đáy bể đến sensor"
-                        value={distanceToSensor}
-                        onChange={(e) => setDistanceToSensor(e.target.value)}
-                    />
-                    <input
-                        type="number"
-                        placeholder="Khoảng cách từ sensor đến mực nước khi bể đầy"
-                        value={distanceToFull}
-                        onChange={(e) => setDistanceToFull(e.target.value)}
+                        placeholder="Độ cao của bể nước"
+                        value={tankHeight}
+                        onChange={(e) => setTankHeight(e.target.value)}
                     />
                     {errorMessage && <p className="error">{errorMessage}</p>}
                     <button onClick={handleConfirmAdjust}>Xác nhận</button>
