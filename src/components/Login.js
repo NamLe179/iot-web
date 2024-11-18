@@ -55,12 +55,28 @@ const Login = ({ onLogin }) => {
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (onLogin(username, password)) {
-            navigate('/dashboard');
-        } else {
-            setError('Invalid username or password');
+        // if (onLogin(username, password)) {
+        //     navigate('/dashboard');
+        // } else {
+        //     setError('Invalid username or password');
+        // }
+        try {
+            const response = await fetch('http://localhost:3000/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password }),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                onLogin(data.token); // Lưu token vào App.js
+            } else {
+                setError(data.message || 'Login failed');
+            }
+        } catch (err) {
+            setError('Server error');
         }
     };
 

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './Dashboard.css';
 
-const Dashboard = ({ onLogout }) => {
+const Dashboard = ({ onLogout, token }) => {
     const [controlMode, setControlMode] = useState(null);
     const [isPumpOn, setIsPumpOn] = useState(false);
     const [showAutoPopup, setShowAutoPopup] = useState(false);
@@ -13,11 +14,56 @@ const Dashboard = ({ onLogout }) => {
     // const [distanceToFull, setDistanceToFull] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
-    const togglePump = (status) => {
-        setIsPumpOn(status);
+    const [latestData, setLatestData] = useState({ waterLevel: null, temperature: null });
+
+
+    const [logs, setLogs] = useState([]);
+    useEffect(() => {
+        const fetchLogs = async () => {
+            try {
+                const response = await fetch('http://localhost:3000/logs', {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                const data = await response.json();
+                console.log(data)
+                setLogs(data);
+                if (data.length > 0) {
+                    // Lấy log mới nhất (phần tử đầu tiên)
+                    setLatestData({ 
+                        waterLevel: data[0].waterLevel, 
+                        temperature: data[0].temperature 
+                    });
+                }
+            } catch (err) {
+                console.error('Error fetching logs', err);
+            }
+        };
+
+        fetchLogs();
+    }, [token]);
+
+    const togglePump = async (status) => {
+        try {
+            const action = status ? "ON" : "OFF"
+            const response = await axios.post('http://localhost:3000/pump/manual', { "action": action }, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                }
+            });
+            if (response.data.message === "success") {
+                setIsPumpOn(status);
+            } else {
+                alert('Không thể điều khiển bơm. Vui lòng thử lại.');
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Lỗi khi kết nối đến server.');
+        }
     };
 
-    const handleConfirmAuto = () => {
+
+    const handleConfirmAuto = async () => {
+
         if (!minWaterLevel || !maxWaterLevel) {
             setErrorMessage('Vui lòng điền đủ thông tin.');
             return;
@@ -30,9 +76,29 @@ const Dashboard = ({ onLogout }) => {
             return;
         }
 
-        setErrorMessage('');
-        setShowAutoPopup(false);
-        console.log("Auto Mode - Min Water Level:", minWaterLevel, "Max Water Level:", maxWaterLevel);
+
+        try {
+            const response = await axios.post('http://localhost:3000/pump/auto', {
+                minLevel: minLevel,
+                maxLevel: maxLevel,
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                }
+            });
+
+            if (response.data.message === "success") {
+                setErrorMessage('');
+                setShowAutoPopup(false);
+                console.log("Auto Mode - Min Water Level:", minWaterLevel, "Max Water Level:", maxWaterLevel);
+            } else {
+                setErrorMessage('Lỗi: Không thể cập nhật chế độ tự động.');
+            }
+        } catch (error) {
+            console.error(error);
+            setErrorMessage('Lỗi khi kết nối đến server.');
+        }
+
     };
 
     // const handleConfirmAdjust = () => {
@@ -52,15 +118,36 @@ const Dashboard = ({ onLogout }) => {
     //     console.log("Distance to Sensor:", distanceToSensor, "Distance to Full:", distanceToFull);
     // };
 
-    const handleConfirmAdjust = () => {
+
+    const handleConfirmAdjust = async () => {
         if (!tankHeight) {
             setErrorMessage('Vui lòng điền đủ thông tin.');
             return;
         }
 
-        setErrorMessage('');
-        setShowAdjustPopup(false);
-        console.log("Tank Height: ", tankHeight);
+        console.log(tankHeight);
+
+        try {
+            const response = await axios.post('http://localhost:3000/logs/update-water-level', {
+                waterLevel : parseInt(tankHeight),
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                }
+            });
+
+            // if (response.data.success) {
+            //     setErrorMessage('');
+            //     setShowAdjustPopup(false);
+            //     console.log("Tank Height: ", tankHeight);
+            // } else {
+            //     setErrorMessage('Lỗi: Không thể cập nhật thông số bể nước.');
+            // }
+        } catch (error) {
+            console.error(error);
+            setErrorMessage('Lỗi khi kết nối đến server.');
+        }
+
     };
 
     return (
@@ -68,10 +155,10 @@ const Dashboard = ({ onLogout }) => {
             <h2>Dashboard</h2>
             {/* <button onClick={onLogout} className="logout-button">Logout</button> */}
             <div className="metrics">
-                <div className="metric">Lượng nước: 71.0%</div>
-                <div className="metric">Nhiệt độ: 34.0°C</div>
+                <div className="metric">Lượng nước: {latestData.waterLevel}%</div>
+                <div className="metric">Nhiệt độ: {latestData.temperature}°C</div>
             </div>
-            
+
             <div className="control-buttons">
                 <button onClick={() => setControlMode('manual')}>Thủ công</button>
                 <button onClick={() => { setControlMode('auto'); setShowAutoPopup(true); }}>Tự động</button>
@@ -81,14 +168,14 @@ const Dashboard = ({ onLogout }) => {
             {/* Điều khiển bơm nước thủ công */}
             {controlMode === 'manual' && (
                 <div className="manual-controls">
-                    <button 
-                        className={isPumpOn ? 'active' : ''} 
+                    <button
+                        className={isPumpOn ? 'active' : ''}
                         onClick={() => togglePump(true)}
                     >
                         ON
                     </button>
-                    <button 
-                        className={!isPumpOn ? 'active' : ''} 
+                    <button
+                        className={!isPumpOn ? 'active' : ''}
                         onClick={() => togglePump(false)}
                     >
                         OFF
@@ -115,7 +202,8 @@ const Dashboard = ({ onLogout }) => {
                     />
                     {errorMessage && <p className="error">{errorMessage}</p>}
                     <button onClick={handleConfirmAuto}>Xác nhận</button>
-                    <button onClick={() => {setShowAutoPopup(false); setErrorMessage(''); }}>Đóng</button>
+
+                    <button onClick={() => { setShowAutoPopup(false); setErrorMessage(''); }}>Đóng</button>
                 </div>
             )}
 
