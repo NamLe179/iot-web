@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Dashboard.css';
 
-const Dashboard = ({ onLogout }) => {
+const Dashboard = ({ onLogout, token }) => {
     const [controlMode, setControlMode] = useState(null);
     const [isPumpOn, setIsPumpOn] = useState(false);
     const [showAutoPopup, setShowAutoPopup] = useState(false);
@@ -13,6 +13,34 @@ const Dashboard = ({ onLogout }) => {
     const [tankHeight, setTankHeight] = useState('');
     // const [distanceToFull, setDistanceToFull] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
+
+    const [latestData, setLatestData] = useState({ waterLevel: null, temperature: null });
+
+
+    const [logs, setLogs] = useState([]);
+    useEffect(() => {
+        const fetchLogs = async () => {
+            try {
+                const response = await fetch('http://localhost:3000/logs', {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                const data = await response.json();
+                console.log(data)
+                setLogs(data);
+                if (data.length > 0) {
+                    // Lấy log mới nhất (phần tử đầu tiên)
+                    setLatestData({ 
+                        waterLevel: data[0].waterLevel, 
+                        temperature: data[0].temperature 
+                    });
+                }
+            } catch (err) {
+                console.error('Error fetching logs', err);
+            }
+        };
+
+        fetchLogs();
+    }, [token]);
 
     const togglePump = async (status) => {
         try {
@@ -93,7 +121,7 @@ const Dashboard = ({ onLogout }) => {
         }
 
         try {
-            const response = await axios.post('/api/tank-adjust', {
+            const response = await axios.post('/api/sensors/update-water-level', {
                 tankHeight: parseFloat(tankHeight),
             });
 
@@ -115,8 +143,8 @@ const Dashboard = ({ onLogout }) => {
             <h2>Dashboard</h2>
             {/* <button onClick={onLogout} className="logout-button">Logout</button> */}
             <div className="metrics">
-                <div className="metric">Lượng nước: 71.0%</div>
-                <div className="metric">Nhiệt độ: 34.0°C</div>
+                <div className="metric">Lượng nước: {latestData.waterLevel}%</div>
+                <div className="metric">Nhiệt độ: {latestData.temperature}°C</div>
             </div>
 
             <div className="control-buttons">
