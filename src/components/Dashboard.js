@@ -16,8 +16,13 @@ const Dashboard = ({ onLogout }) => {
 
     const togglePump = async (status) => {
         try {
-            const response = await axios.post('/api/pump', { isOn: status });
-            if (response.data.success) {
+            const action = status ? "ON" : "OFF"
+            const response = await axios.post('http://localhost:3000/pump/manual', { "action": action }, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                }
+            });
+            if (response.data.message === "success") {
                 setIsPumpOn(status);
             } else {
                 alert('Không thể điều khiển bơm. Vui lòng thử lại.');
@@ -42,12 +47,16 @@ const Dashboard = ({ onLogout }) => {
         }
 
         try {
-            const response = await axios.post('/api/auto-mode', {
-                minWaterLevel: minLevel,
-                maxWaterLevel: maxLevel,
+            const response = await axios.post('http://localhost:3000/pump/auto', {
+                minLevel: minLevel,
+                maxLevel: maxLevel,
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                }
             });
 
-            if (response.data.success) {
+            if (response.data.message === "success") {
                 setErrorMessage('');
                 setShowAutoPopup(false);
                 console.log("Auto Mode - Min Water Level:", minWaterLevel, "Max Water Level:", maxWaterLevel);
@@ -57,7 +66,7 @@ const Dashboard = ({ onLogout }) => {
         } catch (error) {
             console.error(error);
             setErrorMessage('Lỗi khi kết nối đến server.');
-        }    
+        }
     };
 
     // const handleConfirmAdjust = () => {
@@ -109,7 +118,7 @@ const Dashboard = ({ onLogout }) => {
                 <div className="metric">Lượng nước: 71.0%</div>
                 <div className="metric">Nhiệt độ: 34.0°C</div>
             </div>
-            
+
             <div className="control-buttons">
                 <button onClick={() => setControlMode('manual')}>Thủ công</button>
                 <button onClick={() => { setControlMode('auto'); setShowAutoPopup(true); }}>Tự động</button>
@@ -119,14 +128,14 @@ const Dashboard = ({ onLogout }) => {
             {/* Điều khiển bơm nước thủ công */}
             {controlMode === 'manual' && (
                 <div className="manual-controls">
-                    <button 
-                        className={isPumpOn ? 'active' : ''} 
+                    <button
+                        className={isPumpOn ? 'active' : ''}
                         onClick={() => togglePump(true)}
                     >
                         ON
                     </button>
-                    <button 
-                        className={!isPumpOn ? 'active' : ''} 
+                    <button
+                        className={!isPumpOn ? 'active' : ''}
                         onClick={() => togglePump(false)}
                     >
                         OFF
@@ -153,7 +162,7 @@ const Dashboard = ({ onLogout }) => {
                     />
                     {errorMessage && <p className="error">{errorMessage}</p>}
                     <button onClick={handleConfirmAuto}>Xác nhận</button>
-                    <button onClick={() => {setShowAutoPopup(false); setErrorMessage(''); }}>Đóng</button>
+                    <button onClick={() => { setShowAutoPopup(false); setErrorMessage(''); }}>Đóng</button>
                 </div>
             )}
 

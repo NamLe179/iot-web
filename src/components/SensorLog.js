@@ -10,6 +10,7 @@ const SensorLog = ({ token }) => {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 const data = await response.json();
+                console.log(data)
                 setLogs(data);
             } catch (err) {
                 console.error('Error fetching logs', err);
