@@ -119,19 +119,24 @@ const Dashboard = ({ onLogout, token }) => {
             setErrorMessage('Vui lòng điền đủ thông tin.');
             return;
         }
+        console.log(tankHeight);
 
         try {
-            const response = await axios.post('/api/sensors/update-water-level', {
-                tankHeight: parseFloat(tankHeight),
+            const response = await axios.post('http://localhost:3000/logs/update-water-level', {
+                waterLevel : parseInt(tankHeight),
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                }
             });
 
-            if (response.data.success) {
-                setErrorMessage('');
-                setShowAdjustPopup(false);
-                console.log("Tank Height: ", tankHeight);
-            } else {
-                setErrorMessage('Lỗi: Không thể cập nhật thông số bể nước.');
-            }
+            // if (response.data.success) {
+            //     setErrorMessage('');
+            //     setShowAdjustPopup(false);
+            //     console.log("Tank Height: ", tankHeight);
+            // } else {
+            //     setErrorMessage('Lỗi: Không thể cập nhật thông số bể nước.');
+            // }
         } catch (error) {
             console.error(error);
             setErrorMessage('Lỗi khi kết nối đến server.');
