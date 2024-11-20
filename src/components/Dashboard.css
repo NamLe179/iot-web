@@ -16,6 +16,31 @@
     padding: 8px;
 }
 
+.control-buttons button.active {
+    background-color: #4caf50;
+    color: #fff;
+    border-color: #4caf50;
+}
+
+.manual-controls {
+    margin-top: 20px;
+}
+
+.manual-controls button {
+    background-color: #f0f0f0;
+    color: #333;
+    padding: 10px 20px;
+    margin: 5px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+}
+
+.manual-controls button.active {
+    background-color: #4caf50;
+    color: #fff;
+    border-color: #4caf50;
+}
+
 .manual-controls .active {
     background-color: #4CAF50;
     color: white;

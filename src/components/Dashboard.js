@@ -5,10 +5,10 @@ import './Dashboard.css';
 const Dashboard = ({ onLogout, token }) => {
     const [controlMode, setControlMode] = useState(null);
     const [isPumpOn, setIsPumpOn] = useState(false);
-    const [showAutoPopup, setShowAutoPopup] = useState(false);
+    // const [showAutoPopup, setShowAutoPopup] = useState(false);
     const [showAdjustPopup, setShowAdjustPopup] = useState(false);
-    const [minWaterLevel, setMinWaterLevel] = useState('');
-    const [maxWaterLevel, setMaxWaterLevel] = useState('');
+    // const [minWaterLevel, setMinWaterLevel] = useState('');
+    // const [maxWaterLevel, setMaxWaterLevel] = useState('');
     // const [distanceToSensor, setDistanceToSensor] = useState('');
     const [tankHeight, setTankHeight] = useState('');
     // const [distanceToFull, setDistanceToFull] = useState('');
@@ -61,26 +61,10 @@ const Dashboard = ({ onLogout, token }) => {
         }
     };
 
-
-    const handleConfirmAuto = async () => {
-
-        if (!minWaterLevel || !maxWaterLevel) {
-            setErrorMessage('Vui lòng điền đủ thông tin.');
-            return;
-        }
-        const minLevel = parseFloat(minWaterLevel);
-        const maxLevel = parseFloat(maxWaterLevel);
-
-        if (minLevel < 15 || maxLevel > 75 || minLevel >= maxLevel) {
-            setErrorMessage('Lượng nước không hợp lệ (tối thiểu > 15% và tối đa < 75%).');
-            return;
-        }
-
-
+    const handleAutoMode = async () => {
+        
         try {
             const response = await axios.post('http://localhost:3000/pump/auto', {
-                minLevel: minLevel,
-                maxLevel: maxLevel,
             }, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -88,17 +72,14 @@ const Dashboard = ({ onLogout, token }) => {
             });
 
             if (response.data.message === "success") {
-                setErrorMessage('');
-                setShowAutoPopup(false);
-                console.log("Auto Mode - Min Water Level:", minWaterLevel, "Max Water Level:", maxWaterLevel);
+                setControlMode('auto');
             } else {
-                setErrorMessage('Lỗi: Không thể cập nhật chế độ tự động.');
+                alert('Không thể bật chế độ tự động. Vui lòng thử lại.');
             }
         } catch (error) {
             console.error(error);
-            setErrorMessage('Lỗi khi kết nối đến server.');
+            alert('Lỗi khi kết nối đến server.');
         }
-
     };
 
     // const handleConfirmAdjust = () => {
@@ -118,13 +99,11 @@ const Dashboard = ({ onLogout, token }) => {
     //     console.log("Distance to Sensor:", distanceToSensor, "Distance to Full:", distanceToFull);
     // };
 
-
     const handleConfirmAdjust = async () => {
         if (!tankHeight) {
             setErrorMessage('Vui lòng điền đủ thông tin.');
             return;
         }
-
         console.log(tankHeight);
 
         try {
@@ -147,7 +126,6 @@ const Dashboard = ({ onLogout, token }) => {
             console.error(error);
             setErrorMessage('Lỗi khi kết nối đến server.');
         }
-
     };
 
     return (
@@ -160,8 +138,8 @@ const Dashboard = ({ onLogout, token }) => {
             </div>
 
             <div className="control-buttons">
-                <button onClick={() => setControlMode('manual')}>Thủ công</button>
-                <button onClick={() => { setControlMode('auto'); setShowAutoPopup(true); }}>Tự động</button>
+                <button className={controlMode === 'manual' ? 'active' : ''} onClick={() => setControlMode('manual')}>Thủ công</button>
+                <button className={controlMode === 'auto' ? 'active' : ''} onClick={() => { handleAutoMode() }}>Tự động</button>
                 <button onClick={() => setShowAdjustPopup(true)}>Điều chỉnh thông số</button>
             </div>
 
@@ -184,7 +162,7 @@ const Dashboard = ({ onLogout, token }) => {
             )}
 
             {/* Popup cho chế độ tự động */}
-            {showAutoPopup && (
+            {/* {showAutoPopup && (
                 <div className="popup">
                     <h3>Điều chỉnh lượng nước chế độ tự động</h3>
                     <p>Lưu ý: Lượng nước tối thiểu ít nhất là 15% và tối đa là 75%.</p>
@@ -202,10 +180,9 @@ const Dashboard = ({ onLogout, token }) => {
                     />
                     {errorMessage && <p className="error">{errorMessage}</p>}
                     <button onClick={handleConfirmAuto}>Xác nhận</button>
-
                     <button onClick={() => { setShowAutoPopup(false); setErrorMessage(''); }}>Đóng</button>
                 </div>
-            )}
+            )} */}
 
             {/* Popup điều chỉnh thông số */}
             {showAdjustPopup && (
