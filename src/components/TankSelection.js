@@ -37,15 +37,15 @@ import './TankSelection.css';
 const TankSelection = ({onSelectTank}) => {
     const navigate = useNavigate();
 
-    const handleSelect = () =>{
-        onSelectTank('Tank 1');
+    const handleSelect = (tankName) =>{
+        onSelectTank(tankName);
         navigate('/dashboard');
     };
 
     return (
         <div className="select-tank-container">
             <h2>Chọn bể nước</h2>
-            <button className="select-tank" onClick={handleSelect}>Bể số 1</button>
+            <button className="select-tank" onClick={() => handleSelect('Bể số 1')}>Bể số 1</button>
         </div>
     )
 }

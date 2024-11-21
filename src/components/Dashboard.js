@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Dashboard.css';
 
-const Dashboard = ({ onLogout, token }) => {
+const Dashboard = ({ onLogout, token, tank }) => {
     const [controlMode, setControlMode] = useState(null);
     const [isPumpOn, setIsPumpOn] = useState(false);
     // const [showAutoPopup, setShowAutoPopup] = useState(false);
@@ -131,6 +131,7 @@ const Dashboard = ({ onLogout, token }) => {
     return (
         <div className="dashboard">
             <h2>Dashboard</h2>
+            <h3>{tank}</h3>
             {/* <button onClick={onLogout} className="logout-button">Logout</button> */}
             <div className="metrics">
                 <div className="metric">Lượng nước: {latestData.waterLevel}%</div>

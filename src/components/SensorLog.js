@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './SensorLog.css';
 
-const SensorLog = ({ token }) => {
+const SensorLog = ({ token, tank }) => {
     const [logs, setLogs] = useState([]);
     const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
     const logsPerPage = 16; // Số bản ghi mỗi trang
@@ -79,6 +79,7 @@ const SensorLog = ({ token }) => {
     return (
         <div className="sensor-log">
             <h2>Sensor History</h2>
+            <h3>{tank}</h3>
             <table>
                 <thead>
                     <tr>
