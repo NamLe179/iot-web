@@ -188,7 +188,7 @@ const Dashboard = ({ onLogout, token, tank }) => {
             {/* Popup điều chỉnh thông số */}
             {showAdjustPopup && (
                 <div className="popup">
-                    <h3>Điều chỉnh thông số</h3>
+                    <h3>Điều chỉnh thông số (cm)</h3>
                     {/* <p>Lưu ý: Khoảng cách từ sensor đến mực nước khi bể đầy ít nhất là 25cm.</p> */}
                     <input
                         type="number"
