@@ -52,3 +52,29 @@ th {
     cursor: not-allowed;
 }
 
+.export-section {
+    display: flex;
+    justify-content: flex-end; /* Canh phải */
+    margin-top: 20px;
+}
+
+.export-section button {
+    padding: 8px 16px;
+    border: 1px solid #007bff; /* Màu xanh giống nút phân trang đang active */
+    background-color: #007bff; /* Màu nền giống nút active */
+    color: white;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.export-section button:hover {
+    background-color: #0056b3; /* Tông đậm hơn khi hover */
+}
+
+.export-section button:disabled {
+    background-color: #e0e0e0; /* Màu xám khi không hoạt động */
+    color: #a0a0a0; /* Màu chữ nhạt */
+    cursor: not-allowed;
+}

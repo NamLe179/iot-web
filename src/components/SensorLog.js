@@ -75,6 +75,36 @@ const SensorLog = ({ token, tank }) => {
 
         return pageButtons;
     };
+    const exportCSV = async () => {
+        try {
+            // Tạo URL với thời gian bắt đầu và kết thúc (nếu cần)
+            const startTime = new Date('2023-01-01').toISOString(); // Thay bằng thời gian bắt đầu mong muốn
+            const endTime = new Date().toISOString(); // Thời gian kết thúc là hiện tại
+            const url = `http://localhost:3000/logs/export?startTime=${startTime}&endTime=${endTime}`;
+    
+            // Gọi API để lấy dữ liệu CSV
+            const response = await fetch(url, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+    
+            if (!response.ok) {
+                throw new Error('Error exporting CSV');
+            }
+    
+            // Nhận file CSV và tạo link tải
+            const blob = await response.blob();
+            const urlBlob = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = urlBlob;
+            link.download = `logs_${new Date().toISOString()}.csv`;
+            link.click();
+            window.URL.revokeObjectURL(urlBlob);
+        } catch (error) {
+            console.error('Error exporting CSV:', error);
+            alert('Xuất file CSV thất bại.');
+        }
+    };
+    
 
     return (
         <div className="sensor-log">
@@ -116,6 +146,9 @@ const SensorLog = ({ token, tank }) => {
                 >
                     Next
                 </button>
+            </div>
+            <div className="export-section">
+                <button onClick={exportCSV}>Xuất CSV</button>
             </div>
         </div>
     );
